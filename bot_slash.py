@@ -52,7 +52,7 @@ async def on_ready():
     print(f"Bot conectado como {client.user} (ID: {client.user.id})")
     print(f"Guild ID configurado: {GUILD_ID}")
     try:
-        synced = await tree.sync(guild=discord.Object(id=GUILD_ID))
+        synced = await tree.sync()
         print(f"Comandos sincronizados ({len(synced)}): {[cmd.name for cmd in synced]}")
     except Exception as e:
         print(f"Erro ao sincronizar comandos: {e}")
