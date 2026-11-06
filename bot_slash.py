@@ -20,9 +20,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b"Bot is running")
 
+class ThreadingHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    allow_reuse_address = True
+
 port = int(os.environ.get("PORT", 10000))
-server = socketserver.TCPServer(("0.0.0.0", port), Handler)
-threading.Thread(target=server.serve_forever, daemon=True).start()
+try:
+    server = ThreadingHTTPServer(("0.0.0.0", port), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+except Exception as e:
+    print(f"Web server error: {e}")
 
 intents = discord.Intents.default()
 intents.members = True
