@@ -14,11 +14,6 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD_ID = int(os.getenv("GUILD_ID", "0"))
 ROLE_NAME = os.getenv("ROLE_NAME", "Membro")
 
-import os
-import http.server
-import socketserver
-import threading
-
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
