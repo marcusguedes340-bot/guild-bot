@@ -1,1 +1,1 @@
-web: python bot_slash.py
+web: python -u bot_slash.py
