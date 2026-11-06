@@ -16,6 +16,8 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD_ID = int(os.getenv("GUILD_ID", "0"))
 ROLE_NAME = os.getenv("ROLE_NAME", "Membro")
 
+print(f"DEBUG STARTUP -> GUILD_ID: {GUILD_ID}, TOKEN present: {bool(TOKEN)}")
+
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
