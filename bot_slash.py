@@ -1,3 +1,5 @@
+import sys
+sys.stdout.reconfigure(line_buffering=True)
 import discord
 from discord import app_commands
 from discord.ext import tasks
