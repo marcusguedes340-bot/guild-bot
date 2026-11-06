@@ -14,19 +14,20 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD_ID = int(os.getenv("GUILD_ID", "0"))
 ROLE_NAME = os.getenv("ROLE_NAME", "Membro")
 
-class KeepAliveHandler(http.server.SimpleHTTPRequestHandler):
+import os
+import http.server
+import socketserver
+import threading
+
+class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
-        self.send_header("Content-type", "text/plain")
         self.end_headers()
-        self.wfile.write(b"Bot online")
+        self.wfile.write(b"Bot is running")
 
-def run_web_server():
-    port = int(os.environ.get("PORT", 10000))
-    with socketserver.TCPServer(("", port), KeepAliveHandler) as httpd:
-        httpd.serve_forever()
-
-threading.Thread(target=run_web_server, daemon=True).start()
+port = int(os.environ.get("PORT", 10000))
+server = socketserver.TCPServer(("0.0.0.0", port), Handler)
+threading.Thread(target=server.serve_forever, daemon=True).start()
 
 intents = discord.Intents.default()
 intents.members = True
