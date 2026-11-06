@@ -84,8 +84,8 @@ async def send_war_reminder():
 Pessoal, hoje tem GvG! ⚔️
 
 ⚔️ Quem for participar, esteja online no Discord às 20h30 para organizarmos as PTs e alinharmos a estratégia antes da guerra.
-⚠️ Quem não for participar, nos deixe avisado no chat de ausências para que possamos definir o plantel.
-🪙 Quem for participar da guerra não esquecer de reagir ao que te interessa bidar no <#1566888397673603132>
+⚠️ Quem não for participar, nos deixe avisado no chat #ausencia-guerra para que possamos definir o plantel.
+🪙 Quem for participar da guerra não esquecer de reagir ao que te interessa bidar no #bid-organize
 
 🎯 Vamos em busca de mais uma vitória. Contamos com a presença de todos!"""
 
