@@ -45,9 +45,13 @@ historico_messages = {}
 
 @client.event
 async def on_ready():
-    print(f"Bot conectado como {client.user}")
-    await tree.sync(guild=discord.Object(id=GUILD_ID))
-    print("Comandos sincronizados!")
+    print(f"Bot conectado como {client.user} (ID: {client.user.id})")
+    print(f"Guild ID configurado: {GUILD_ID}")
+    try:
+        synced = await tree.sync(guild=discord.Object(id=GUILD_ID))
+        print(f"Comandos sincronizados ({len(synced)}): {[cmd.name for cmd in synced]}")
+    except Exception as e:
+        print(f"Erro ao sincronizar comandos: {e}")
     if not send_war_reminder.is_running():
         send_war_reminder.start()
     if not keep_alive.is_running():
