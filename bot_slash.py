@@ -65,13 +65,13 @@ async def on_ready():
 async def keep_alive():
     print(f"Bot ativo em {datetime.datetime.now(pytz.timezone('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M:%S')} (Horário de Brasília)")
 
-@tasks.loop(hours=1)
+@tasks.loop(minutes=1)
 async def send_war_reminder():
     brasilia_tz = pytz.timezone('America/Sao_Paulo')
     now = datetime.datetime.now(brasilia_tz)
     dia_semana = now.weekday()
     
-    if dia_semana in [1, 3, 6] and now.hour == 0 and now.minute >= 30 and now.minute < 35:
+    if dia_semana in [1, 3, 6] and now.hour == 0 and now.minute == 30:
         guild = client.get_guild(GUILD_ID)
         if not guild:
             return
