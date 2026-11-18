@@ -71,7 +71,7 @@ async def send_war_reminder():
     now = datetime.datetime.now(brasilia_tz)
     dia_semana = now.weekday()
     
-    if dia_semana in [1, 3, 6] and now.hour == 0 and now.minute == 30:
+    if dia_semana in [1, 3, 6] and now.hour == 10 and now.minute == 0:
         guild = client.get_guild(GUILD_ID)
         if not guild:
             return
