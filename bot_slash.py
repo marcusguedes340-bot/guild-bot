@@ -10,6 +10,13 @@ import pytz
 import threading
 import http.server
 import socketserver
+import urllib.request
+import urllib.parse
+import hashlib
+import random
+import string
+import json
+import re
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -44,8 +51,75 @@ tree = app_commands.CommandTree(client)
 
 BID_CHANNEL_ID = 1566888397673603132
 HISTORICO_CHANNEL_ID = 1567537503785848992
+NEWS_CHANNEL_ID = 1572590362319659108
 reaction_messages = {}
 historico_messages = {}
+posted_news_ids = set()
+
+def fetch_game_news(max_size=5):
+    ts = str(int(datetime.datetime.now().timestamp()))
+    nonce = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+    x_ua = "OS=Win32&LANG=pt&PL=Web&UID=bot&OS=Windows&APP_CODE=1q33ebihjjpucer8"
+    params = {
+        "X-UA": x_ua,
+        "client_id": "fd6f8e433b0acc3a",
+        "time": ts,
+        "nonce": nonce,
+        "max_size": str(max_size),
+    }
+    pairs = sorted(["%s=%s" % (k, v) for k, v in params.items()])
+    param_sign = hashlib.md5(("&".join(pairs) + "dec21f1975d55f8eac64b436c3408210").encode()).hexdigest()
+    params["sign"] = param_sign
+    qs = "&".join("%s=%s" % (k, urllib.parse.quote(str(v), safe="")) for k, v in params.items())
+    path = "/api/config/v1/ops/news"
+    hdr_sign = hashlib.md5((path + ts + "B0VwRmcGgKwHmA8zMUgN7g9HJzjBbD5w").encode()).hexdigest()
+    req = urllib.request.Request("https://club-api.joymaker.com" + path + "?" + qs, data=b"{}", headers={
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+        "language": "pt",
+        "timestamp": ts,
+        "sign": hdr_sign,
+        "User-Agent": "Mozilla/5.0",
+        "Origin": "https://roocamer.gnjoy.game",
+        "Referer": "https://roocamer.gnjoy.game/"
+    })
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    return data.get("data", {}).get("list", [])
+
+def strip_html(text):
+    text = re.sub(r"<br\s*/?>", "\n", text)
+    text = re.sub(r"<[^>]+>", "", text)
+    return text.strip()
+
+@tasks.loop(minutes=30)
+async def check_game_news():
+    try:
+        news_list = fetch_game_news(5)
+        news_channel = client.get_channel(NEWS_CHANNEL_ID)
+        if not news_channel:
+            return
+        for item in reversed(news_list):
+            item_id = item.get("id")
+            if item_id in posted_news_ids:
+                continue
+            title = item.get("title", "")
+            if "notas da atualiza" not in title.lower() and "hotfix" not in title.lower():
+                posted_news_ids.add(item_id)
+                continue
+            category = item.get("category", "news")
+            content = strip_html(item.get("content", ""))
+            if len(content) > 1500:
+                content = content[:1500] + "..."
+            created = item.get("created_at", 0)
+            created_str = datetime.datetime.fromtimestamp(created, pytz.timezone("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M") if created else "Data desconhecida"
+            embed = discord.Embed(title=f"📰 {title}", description=content, color=0x00b0f4)
+            embed.set_footer(text=f"Categoria: {category} | {created_str}")
+            await news_channel.send(embed=embed)
+            posted_news_ids.add(item_id)
+            print(f"Noticia publicada: {title}")
+    except Exception as e:
+        print(f"Erro ao verificar noticias: {e}")
 
 @client.event
 async def on_ready():
@@ -60,6 +134,8 @@ async def on_ready():
         send_war_reminder.start()
     if not keep_alive.is_running():
         keep_alive.start()
+    if not check_game_news.is_running():
+        check_game_news.start()
 
 @tasks.loop(minutes=5)
 async def keep_alive():
